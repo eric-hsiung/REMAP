@@ -1,106 +1,15 @@
-README
+# Automata Learning from Preference and Equivalence Queries
 
-This is the experimental code repository for Automata Learning from Preference and Equivalence Queries.
-The below README refers to the README under remap/README.
+The project website can be found at [https://eric-hsiung.github.io/remap](https://eric-hsiung.github.io/remap).
 
+This is the experimental code repository for the paper
 
-python 3.8.13
-numpy 1.23.1
-pandas 1.5.0
-networkx 3.1
-matplotlib 3.5.2
-z3-solver 4.13.0.0
-pytest 7.1.2
-pytest-forked 1.3.0
-pytest-utils 0.0.0
-pytest-xdist 2.5.0
+**Automata Learning from Preference and Equivalence Queries**
 
-To run the accompanying unit tests:
+It contains an implementation of the REMAP algorithm, unit tests, and code for running experiments.
+It additionally contains a fork where certain bugs in the [reward_machines](reward_machines/README)(Icarte et al. 2018) repository have been corrected.
+The corrections are specification of a deterministic reward machine, specifically for CraftWorld.
 
- pytest test_datastructures.py
- pytest test_lstar.py
-
-All the tests should pass. The lstar test may show warnings regarding escaped characters.
+The main README for REMAP is found at [remap/README](remap/README).
 
 
-
-REMAP Experiments -- Example Usage:
-python experiment.py --eq_samples 2000 --ids_sampling --domain craft --task t1 --trial 1  1> /dev/null
-
-python experiment.py --eq_samples 2000 --ids_sampling --domain office --task t1 --trial 1  1> /dev/null
-
-There will be two outputs:
- 1. A CSV file. Once you have run multiple trials (each uniquely numbered) for a given task, you can merge the data for that task.
- 2. A reward machine file. This will be written to ./lstar_exps/reward_machine_experiments/{domain}-{eq_samples}/{task}.txt.{trial}
-    This is the learned reward machine for the task on this particular trial.
-
-NOTE: That by default, exact equivalence queries are used, so the --eq_samples and --ids_sampling will not be in effect.
-
- !!! To switch to sampling-based queries, switch the code to use sampling-based queries. The sampling-based equivalence query
-     is named __equivalence_query inside the class RewardMachineTeacher. Simply swap the equivalence_query and __equivalence_query function names.
-
-Generate Isomorphism Data:
- 1. Evaluate empirical probability of isomorphism, edit / run run_isomorphism.sh. This runs rm_testing.py on the learned reward machine.
-    This will generate an isomorphism directory under lstar_exps/reward_machine_experiments/isomorphism/
-
-Generate Regret Data:
- 1. Go to ../reward_machines/scripts
- 2. Run qlearning with CRM on the Office and Craft domains (see the run_lstar_office.sh and run_lstar_craft_ref.sh scripts) to create
-    reference runs. This should be done with multiple trials (>10 trials). These will run CRM on the ground truth (reference) RMs, and log the returns during training.
- 3. Repeat the process, except run CRM on EACH of the learned reward machines that were output by experiment.py.
-    a. For EACH learned reward machine, train a policy using CRM. Repeat with at least 10 trials.
- 4. Use the process_regret.py script to compute the regret. Example usage is found at the bottom of this README file.
-
-Plotting:
- Example plotting commands are found below.
-
-
-Empirical Probability of Isomorphism Plots:
-python plot_lstar.py --xlabel 'Samples per EQ' --ylabel 'Empirical Probability' --title 'Office Isomorphism' --save office_isomorphism.pdf --type isomorphism_plot --fprefix lstar_exps/reward_machine_experiments/isomorphism/office/ --fsuffix '' --fiter 25 --fiter 50 --fiter 100 --fiter 200 --fiter 300 --fiter 1000 --fiter 5000 --expids t1.csv. --expids t2.csv. --expids t3.csv. --expids t4.csv. --column "'Accuracy'" --legend T1 --legend T2 --legend T3 --legend T4
-
-python plot_lstar.py --xlabel 'Samples per EQ' --ylabel 'Empirical Probability' --title 'Craft Isomorphism' --save craft_isomorphism.pdf --type isomorphism_plot --fprefix lstar_exps/reward_machine_experiments/isomorphism/craft/ --fsuffix '' --fiter 25 --fiter 50 --fiter 100 --fiter 200 --fiter 300 --fiter 400 --fiter 500 --expids t1.csv. --expids t2.csv. --expids t3.csv. --expids t4.csv. --expids t105.csv. --expids t106.csv. --expids t107.csv. --expids t108.csv. --expids t109.csv. --expids t110.csv. --column "'Accuracy'" --legend T1 --legend T2 --legend T3 --legend T4 --legend T105 --legend T106 --legend T107 --legend T108 --legend T109 --legend T110
-
-
-Classification Accuracy Plots:
-python plot_lstar.py --xlabel 'Samples per EQ' --ylabel 'Accuracy' --title 'Classification vs Samples per EQ' --save craft_classification_accuracy.pdf --type comparison_plot --fprefix lstar_exps/reward_machine_experiments/isomorphism/craft/ --fsuffix '' --fiter 25 --fiter 50 --fiter 100 --fiter 200 --fiter 300 --fiter 400 --fiter 500 --expids t1.csv. --expids t2.csv. --expids t3.csv. --expids t4.csv. --expids t105.csv. --expids t106.csv. --expids t107.csv. --expids t108.csv. --expids t109.csv. --expids t110.csv. --column "'Accuracy'" --legend T1 --legend T2 --legend T3 --legend T4 --legend T105 --legend T106 --legend T107 --legend T108 --legend T109 --legend T110
-
-python plot_lstar.py --xlabel 'Samples per EQ' --ylabel 'Accuracy' --title 'Classification vs Samples per EQ' --save office_classification_accuracy.pdf --type comparison_plot --fprefix lstar_exps/reward_machine_experiments/isomorphism/office/ --fsuffix '' --fiter 25 --fiter 50 --fiter 100 --fiter 200 --fiter 300 --fiter 1000 --fiter 5000 --expids t1.csv. --expids t2.csv. --expids t3.csv. --expids t4.csv. --column "'Accuracy'" --legend T1 --legend T2 --legend T3 --legend T4
-
-
-Event plots:
-python plot_lstar.py --xlabel 'Known Values' --ylabel 'Num States' --title 'Termination Phase Diagram' --save craft_termination_plot.pdf --type event_plot --csv craft-world-abr-500-t110.csv
-
-Scatter plots:
-python plot_lstar.py --xlabel '# Unique Sequences' --ylabel '# Pref Q' --title 'Pref Q vs Unique Seqs' --save craft_pref_q.pdf --type plot --csv craft-world-abr-25-t105.csv --csv craft-world-abr-25-t106.csv --csv craft-world-abr-25-t107.csv --csv craft-world-abr-25-t108.csv --csv craft-world-abr-25-t109.csv --csv craft-world-abr-25-t110.csv --csv craft-world-abr-50-t105.csv --csv craft-world-abr-50-t106.csv --csv craft-world-abr-50-t107.csv --csv craft-world-abr-50-t108.csv --csv craft-world-abr-50-t109.csv --csv craft-world-abr-50-t110.csv --csv craft-world-abr-100-t105.csv --csv craft-world-abr-100-t106.csv --csv craft-world-abr-100-t107.csv --csv craft-world-abr-100-t108.csv --csv craft-world-abr-100-t109.csv --csv craft-world-abr-100-t110.csv --csv craft-world-abr-200-t105.csv --csv craft-world-abr-200-t106.csv --csv craft-world-abr-200-t107.csv --csv craft-world-abr-200-t108.csv --csv craft-world-abr-200-t109.csv --csv craft-world-abr-200-t110.csv --csv craft-world-abr-300-t105.csv --csv craft-world-abr-300-t106.csv --csv craft-world-abr-300-t107.csv --csv craft-world-abr-300-t108.csv --csv craft-world-abr-300-t109.csv --csv craft-world-abr-300-t110.csv --csv craft-world-abr-400-t105.csv --csv craft-world-abr-400-t106.csv --csv craft-world-abr-400-t107.csv --csv craft-world-abr-400-t108.csv --csv craft-world-abr-400-t109.csv --csv craft-world-abr-400-t110.csv --csv craft-world-abr-500-t105.csv --csv craft-world-abr-500-t106.csv --csv craft-world-abr-500-t107.csv --csv craft-world-abr-500-t108.csv --csv craft-world-abr-500-t109.csv --csv craft-world-abr-500-t110.csv --column "'Num Unique Sequences'" --column "'Num Pref Q'"
-
-python plot_lstar.py --xlabel '# Unique Sequences' --ylabel '# Pref Q' --title 'Pref Q vs Unique Seqs' --save craft_pref_q_quick.pdf --type plot --csv craft-world-quick-25-t105.csv --csv craft-world-quick-25-t106.csv --csv craft-world-quick-25-t107.csv --csv craft-world-quick-25-t108.csv --csv craft-world-quick-25-t109.csv --csv craft-world-quick-25-t110.csv --csv craft-world-quick-50-t105.csv --csv craft-world-quick-50-t106.csv --csv craft-world-quick-50-t107.csv --csv craft-world-quick-50-t108.csv --csv craft-world-quick-50-t109.csv --csv craft-world-quick-50-t110.csv --csv craft-world-quick-100-t105.csv --csv craft-world-quick-100-t106.csv --csv craft-world-quick-100-t107.csv --csv craft-world-quick-100-t108.csv --csv craft-world-quick-100-t109.csv --csv craft-world-quick-100-t110.csv --csv craft-world-quick-200-t105.csv --csv craft-world-quick-200-t106.csv --csv craft-world-quick-200-t107.csv --csv craft-world-quick-200-t108.csv --csv craft-world-quick-200-t109.csv --csv craft-world-quick-200-t110.csv --csv craft-world-quick-300-t105.csv --csv craft-world-quick-300-t106.csv --csv craft-world-quick-300-t107.csv --csv craft-world-quick-300-t108.csv --csv craft-world-quick-300-t109.csv --csv craft-world-quick-300-t110.csv --csv craft-world-quick-400-t105.csv --csv craft-world-quick-400-t106.csv --csv craft-world-quick-400-t107.csv --csv craft-world-quick-400-t108.csv --csv craft-world-quick-400-t109.csv --csv craft-world-quick-400-t110.csv --csv craft-world-quick-500-t105.csv --csv craft-world-quick-500-t106.csv --csv craft-world-quick-500-t107.csv --csv craft-world-quick-500-t108.csv --csv craft-world-quick-500-t109.csv --csv craft-world-quick-500-t110.csv --column "'Num Unique Sequences'" --column "'Num Pref Q'"
-
-python plot_lstar.py --xlabel 'Alphabet Size' --ylabel '# Unique Sequences' --title 'Unique Seqs vs Alphabet Size' --save craft_seq_alpha.pdf --type violin_plot --csv craft-world-abr-25-t105.csv --csv craft-world-abr-25-t106.csv --csv craft-world-abr-25-t107.csv --csv craft-world-abr-25-t108.csv --csv craft-world-abr-25-t109.csv --csv craft-world-abr-25-t110.csv --csv craft-world-abr-50-t105.csv --csv craft-world-abr-50-t106.csv --csv craft-world-abr-50-t107.csv --csv craft-world-abr-50-t108.csv --csv craft-world-abr-50-t109.csv --csv craft-world-abr-50-t110.csv --csv craft-world-abr-100-t105.csv --csv craft-world-abr-100-t106.csv --csv craft-world-abr-100-t107.csv --csv craft-world-abr-100-t108.csv --csv craft-world-abr-100-t109.csv --csv craft-world-abr-100-t110.csv --csv craft-world-abr-200-t105.csv --csv craft-world-abr-200-t106.csv --csv craft-world-abr-200-t107.csv --csv craft-world-abr-200-t108.csv --csv craft-world-abr-200-t109.csv --csv craft-world-abr-200-t110.csv --csv craft-world-abr-300-t105.csv --csv craft-world-abr-300-t106.csv --csv craft-world-abr-300-t107.csv --csv craft-world-abr-300-t108.csv --csv craft-world-abr-300-t109.csv --csv craft-world-abr-300-t110.csv --csv craft-world-abr-400-t105.csv --csv craft-world-abr-400-t106.csv --csv craft-world-abr-400-t107.csv --csv craft-world-abr-400-t108.csv --csv craft-world-abr-400-t109.csv --csv craft-world-abr-400-t110.csv --csv craft-world-abr-500-t105.csv --csv craft-world-abr-500-t106.csv --csv craft-world-abr-500-t107.csv --csv craft-world-abr-500-t108.csv --csv craft-world-abr-500-t109.csv --csv craft-world-abr-500-t110.csv --column "'Alphabet'" --column "'Num Unique Sequences'"
-
-python plot_lstar.py --xlabel 'Max CEX Length' --ylabel '# Unique Sequences' --title '# Unique Seqs vs Max CEX' --save craft_colored_scatter.pdf --type colored_scatter --csv craft-world-abr-25-t105.csv --csv craft-world-abr-25-t106.csv --csv craft-world-abr-25-t107.csv --csv craft-world-abr-25-t108.csv --csv craft-world-abr-25-t109.csv --csv craft-world-abr-25-t110.csv --csv craft-world-abr-50-t105.csv --csv craft-world-abr-50-t106.csv --csv craft-world-abr-50-t107.csv --csv craft-world-abr-50-t108.csv --csv craft-world-abr-50-t109.csv --csv craft-world-abr-50-t110.csv --csv craft-world-abr-100-t105.csv --csv craft-world-abr-100-t106.csv --csv craft-world-abr-100-t107.csv --csv craft-world-abr-100-t108.csv --csv craft-world-abr-100-t109.csv --csv craft-world-abr-100-t110.csv --csv craft-world-abr-200-t105.csv --csv craft-world-abr-200-t106.csv --csv craft-world-abr-200-t107.csv --csv craft-world-abr-200-t108.csv --csv craft-world-abr-200-t109.csv --csv craft-world-abr-200-t110.csv --csv craft-world-abr-300-t105.csv --csv craft-world-abr-300-t106.csv --csv craft-world-abr-300-t107.csv --csv craft-world-abr-300-t108.csv --csv craft-world-abr-300-t109.csv --csv craft-world-abr-300-t110.csv --csv craft-world-abr-400-t105.csv --csv craft-world-abr-400-t106.csv --csv craft-world-abr-400-t107.csv --csv craft-world-abr-400-t108.csv --csv craft-world-abr-400-t109.csv --csv craft-world-abr-400-t110.csv --csv craft-world-abr-500-t105.csv --csv craft-world-abr-500-t106.csv --csv craft-world-abr-500-t107.csv --csv craft-world-abr-500-t108.csv --csv craft-world-abr-500-t109.csv --csv craft-world-abr-500-t110.csv --column "'CEX Lengths'" --column "'Num Unique Sequences'" --groups 6
-
-python plot_lstar.py --xlabel '# States' --ylabel '# Unique Sequences' --title 'Unique Seqs vs States' --save craft_seq_states.pdf --type violin_plot --csv craft-world-abr-25-t105.csv --csv craft-world-abr-25-t106.csv --csv craft-world-abr-25-t107.csv --csv craft-world-abr-25-t108.csv --csv craft-world-abr-25-t109.csv --csv craft-world-abr-25-t110.csv --csv craft-world-abr-50-t105.csv --csv craft-world-abr-50-t106.csv --csv craft-world-abr-50-t107.csv --csv craft-world-abr-50-t108.csv --csv craft-world-abr-50-t109.csv --csv craft-world-abr-50-t110.csv --csv craft-world-abr-100-t105.csv --csv craft-world-abr-100-t106.csv --csv craft-world-abr-100-t107.csv --csv craft-world-abr-100-t108.csv --csv craft-world-abr-100-t109.csv --csv craft-world-abr-100-t110.csv --csv craft-world-abr-200-t105.csv --csv craft-world-abr-200-t106.csv --csv craft-world-abr-200-t107.csv --csv craft-world-abr-200-t108.csv --csv craft-world-abr-200-t109.csv --csv craft-world-abr-200-t110.csv --csv craft-world-abr-300-t105.csv --csv craft-world-abr-300-t106.csv --csv craft-world-abr-300-t107.csv --csv craft-world-abr-300-t108.csv --csv craft-world-abr-300-t109.csv --csv craft-world-abr-300-t110.csv --csv craft-world-abr-400-t105.csv --csv craft-world-abr-400-t106.csv --csv craft-world-abr-400-t107.csv --csv craft-world-abr-400-t108.csv --csv craft-world-abr-400-t109.csv --csv craft-world-abr-400-t110.csv --csv craft-world-abr-500-t105.csv --csv craft-world-abr-500-t106.csv --csv craft-world-abr-500-t107.csv --csv craft-world-abr-500-t108.csv --csv craft-world-abr-500-t109.csv --csv craft-world-abr-500-t110.csv --column "'Number of States'" --column "'Num Unique Sequences'"
-
-Termination Plot Example:
-python plot_lstar.py --xlabel 'Known Values' --ylabel 'Num States' --title 'Termination Phase Diagram' --save craft_termination_example.pdf --type event_plot --csv craft-world-abr-300-t110.csv
-
-
-
-Generate Regret Data:
-## Craft World
-python process_regret.py --ref ../reward_machines/my_results/crm/craft-single/M0/2e6-ref-t105 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-25 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-50 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-100 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-200 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-300 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-400 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-500 --lower 1000000 --upper 2000000 --var 25 --var 50 --var 100 --var 200 --var 300 --var 400 --var 500 --save regret-t105.csv
-
-python process_regret.py --ref ../reward_machines/my_results/crm/craft-single/M0/2e6-ref-t105 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-25 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-50 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-100 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-200 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-300 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-400 --learned ../reward_machines/my_results/crm/craft-single/M0/2e6-t105-500 --lower 1000000 --upper 2000000 --var 25 --var 50 --var 100 --var 200 --var 300 --var 400 --var 500 --save regret-t105.csv
-
-# Office World
-python process_regret.py --ref ../reward_machines/my_results/crm/office-single/M1/2e5-ref-t1 --learned ../reward_machines/my_results/crm/office-single/M1/2e5-t1-25 --learned ../reward_machines/my_results/crm/office-single/M1/2e5-t1-50 --learned ../reward_machines/my_results/crm/office-single/M1/2e5-t1-100 --learned ../reward_machines/my_results/crm/office-single/M1/2e5-t1-200 --learned ../reward_machines/my_results/crm/office-single/M1/2e5-t1-300 --learned ../reward_machines/my_results/crm/office-single/M1/2e5-t1-1000 --learned ../reward_machines/my_results/crm/office-single/M1/2e5-t1-5000 --lower 100000 --upper 200000 --var 25 --var 50 --var 100 --var 200 --var 300 --var 1000 --var 5000 --save regret-office-t1.csv
-
-
-
-Regret Plot:
-
-#CraftWorld
-python plot_lstar.py --xlabel 'Samples per EQ' --ylabel 'Avg Regret per Step' --title 'Craft Regret' --save craft_regret.pdf --type regret_plot --groups 10 --csv regret-t1.csv --csv regret-t2.csv --csv regret-t3.csv --csv regret-t4.csv --csv regret-t105.csv --csv regret-t106.csv --csv regret-t107.csv --csv regret-t108.csv --csv regret-t109.csv --csv regret-t110.csv 
-
-#OfficeWorld
-python plot_lstar.py --xlabel 'Samples per EQ' --ylabel 'Avg Regret per Step' --title 'Office Regret' --save office_regret.pdf --type regret_plot --groups 4 --csv regret-office-t1.csv --csv regret-office-t2.csv --csv regret-office-t3.csv --csv regret-office-t4.csv
