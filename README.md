@@ -12,4 +12,14 @@ The corrections are specification of a deterministic reward machine, specificall
 
 The main README for REMAP is found at [remap/README](remap/README).
 
-
+To cite this work:
+```
+@misc{hsiung2023remap,
+        title={Automata Learning from Preference and Equivalence Queries}, 
+        author={Eric Hsiung and Joydeep Biswas and Swarat Chaudhuri},
+        year={2023},
+        eprint={2308.09301},
+        archivePrefix={arXiv},
+        primaryClass={cs.LG}
+      }
+```
