@@ -6,7 +6,8 @@ This is the experimental code repository for the paper **Automata Learning from 
 
 It contains an implementation of the REMAP algorithm, unit tests, and code for running experiments.
 It additionally contains a fork where certain bugs in the [reward_machines](reward_machines) (Icarte et al. 2018) repository have been corrected.
-The corrections are specification of a deterministic reward machine, specifically for CraftWorld.
+The corrections are specification of a deterministic reward machine, specifically for CraftWorld. For specific details about the corrections, please
+refer to the [Appendix](https://arxiv.org/pdf/2308.09301) of the paper.
 
 The main README for REMAP is found at [remap/README](remap/README).
 
